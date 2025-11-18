@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Network Inventory Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <h2>🔐 Welcome Back</h2>
+    <p class="subtitle">Please login to access your dashboard</p>
+
+    <input id="loginUser" placeholder="Username" autocomplete="username" />
+    <input id="loginPass" placeholder="Password" type="password" autocomplete="current-password" />
+
+    <button id="btnLogin">Login</button>
+    <p id="loginMsg" class="login-msg"></p>
+
+    <p class="hint">
+      Default accounts: <b>admin / admin</b> (admin) or <b>viewer / viewer</b> (read-only)<br />
+      You can change password later in Settings.
+    </p>
+  </div>
+</div>
+<!-- ================= END LOGIN SCREEN ================= -->
+
+<body>
+  <div id="appScreen" class="app-container hidden">
+    <header>
+      <h1>Network Inventory Manager</h1>
+      <div class="header-buttons">
+        <button id="btnSettings">⚙️ Settings</button>
+        <button id="btnLogout">🚪 Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="toolbar">
+        <input type="text" id="searchBox" placeholder="Search Serial / MAC / PO No..." />
+        <select id="typeFilter"></select>
+        <button id="btnExportExcel">📤 Export Excel</button>
+        <input type="file" id="fileImportExcel" accept=".xlsx, .xls" />
+        <button id="btnBackup">💾 Backup</button>
+        <input type="file" id="fileRestoreJSON" class="hidden" />
+        <button id="btnSelectRestore">📂 Restore</button>
+        <button id="btnResetData">🗑 Reset</button>
+      </div>
+
+      <section class="form">
+        <input id="f_name" placeholder="Name" />
+        <select id="f_type"></select>
+        <select id="f_status">
+          <option>Online</option>
+          <option>Offline</option>
+          <option>Maintenance</option>
+        </select>
+        <input id="f_site" placeholder="Site" />
+        <input id="f_sap" placeholder="SAP Tag" />
+        <input id="f_curr" placeholder="Current Location" />
+        <input id="f_old" placeholder="Old Location" />
+        <input id="f_desc" placeholder="Description" />
+        <input id="f_model" placeholder="Model" />
+        <input id="f_brand" placeholder="Brand" />
+        <input id="f_serial" placeholder="Serial No" />
+        <input id="f_mac" placeholder="MAC Address" />
+        <input id="f_po" placeholder="PO No" />
+        <input id="f_date" type="date" />
+        <input id="f_vendor" placeholder="Vendor" />
+
+        <!-- Quantity field -->
+        <input id="f_qty" type="number" min="1" value="1" placeholder="Quantity" />
+
+        <!-- Add button -->
+        <button id="btnAdd">Add Device(s)</button>
+      </section>
+
+      <section class="stats">
+        <p>Total: <span id="statTotal">0</span></p>
+        <p>Online: <span id="statOnline">0</span></p>
+        <p>Offline: <span id="statOffline">0</span></p>
+        <p>Maintenance: <span id="statMaint">0</span></p>
+      </section>
+
+      <div class="table-container">
+        <table id="tableInventory">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Site</th>
+              <th>SAP Tag</th>
+              <th>Current Location</th>
+              <th>Old Location</th>
+              <th>Description</th>
+              <th>Model</th>
+              <th>Brand</th>
+              <th>Serial No</th>
+              <th>MAC Address</th>
+              <th>PO No</th>
+              <th>Date</th>
+              <th>Vendor</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="footer-bar">
+        📋 Showing complete device list — scroll to see all records.
+      </div>
+    </main>
+  </div>
+
+  <!-- ⚙️ SETTINGS MODAL (cleaned version) -->
+  <div id="settingsModal" class="hidden settings-modal">
+    <h2>Settings</h2>
+
+    <!-- Change password (for logged-in user) -->
+    <div class="change-pass">
+      <h3>Change Password</h3>
+      <input id="oldPass" type="password" placeholder="Old password" />
+      <input id="newPass" type="password" placeholder="New password" />
+      <button id="btnChangePass">Change Password</button>
+    </div>
+
+    <hr style="margin:10px 0;" />
+
+    <!-- User manager (Admin only) -->
+    <div id="userManager" class="user-create-box">
+      <h3>👥 Manage Users (Admin only)</h3>
+      <div class="user-create-box">
+        <input id="newUserName" placeholder="Username" />
+        <input id="newUserPass" type="password" placeholder="Password" />
+        <select id="newUserRole">
+          <option value="user">Viewer (Read Only)</option>
+          <option value="admin">Admin (Full Access)</option>
+        </select>
+        <button id="btnCreateUser">Create</button>
+      </div>
+      <div id="userList" style="margin-top:8px; font-size:13px;"></div>
+      <p id="userMsg"></p>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button id="btnCloseSettings">Close</button>
+    </div>
+  </div>
+
+  <!-- 📝 EDIT MODAL -->
+  <div id="editModal" class="hidden edit-modal">
+    <h2>Edit Device</h2>
+    <input id="e_name" placeholder="Name" />
+    <input id="e_type" placeholder="Type" />
+    <input id="e_status" placeholder="Status" />
+    <input id="e_site" placeholder="Site" />
+    <input id="e_sap" placeholder="SAP Tag" />
+    <input id="e_curr" placeholder="Current Location" />
+    <input id="e_old" placeholder="Old Location" />
+    <input id="e_desc" placeholder="Description" />
+    <input id="e_model" placeholder="Model" />
+    <input id="e_brand" placeholder="Brand" />
+    <input id="e_serial" placeholder="Serial No" />
+    <input id="e_mac" placeholder="MAC Address" />
+    <input id="e_po" placeholder="PO No" />
+    <input id="e_date" type="date" />
+    <input id="e_vendor" placeholder="Vendor" />
+    <button id="btnSaveEdit">Save</button>
+    <button id="btnCloseEdit">Close</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
