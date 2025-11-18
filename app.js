@@ -163,7 +163,6 @@ function save() {
   localStorage.setItem(LS_DATA, JSON.stringify(data));
 }
 
-
 // ---------------- Settings ----------------
 btnSettings.onclick = () => {
   settingsModal.classList.remove("hidden");
@@ -427,7 +426,5 @@ function createLoginSnow() {
   }
 }
 setInterval(createLoginSnow, 1800);
-
-
 
 
