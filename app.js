@@ -156,19 +156,11 @@ function applyRoles() {
 
 // ---------------- Load & Save ----------------
 function load() {
-  firebase.database().ref("inventory").once("value", snapshot => {
-    const val = snapshot.val();
-    data = val ? Object.values(val) : [];
-    render();
-  });
+  const d = localStorage.getItem(LS_DATA);
+  if (d) data = JSON.parse(d);
 }
-
 function save() {
-  let dbObj = {};
-  data.forEach(d => {
-    dbObj[d.id] = d;
-  });
-  firebase.database().ref("inventory").set(dbObj);
+  localStorage.setItem(LS_DATA, JSON.stringify(data));
 }
 
 
@@ -435,6 +427,7 @@ function createLoginSnow() {
   }
 }
 setInterval(createLoginSnow, 1800);
+
 
 
 
